@@ -45,7 +45,7 @@ namespaceOverride: ""
 ollama:
   gpu:
     # -- Enable GPU integration
-    enabled: false
+    enabled: true
 
     # -- GPU type: 'nvidia' or 'amd'
     # If 'ollama.gpu.enabled', default value is nvidia
@@ -77,13 +77,13 @@ ollama:
     # -- List of models to pull at container startup
     # The more you add, the longer the container will take to start if models are not present
     # pull:
-    #  - llama2
+    - tinyllama
     #  - mistral
-    pull: []
+    pull:
 
     # -- List of models to load in memory at container startup
     # run:
-    #  - llama2
+    - tinyllama
     #  - mistral
     run: []
 
@@ -165,20 +165,23 @@ service:
 # Configure the ingress resource that allows you to access the
 ingress:
   # -- Enable ingress controller resource
-  enabled: false
+  enabled: true
 
   # -- IngressClass that will be used to implement the Ingress (Kubernetes 1.18+)
   className: ""
 
   # -- Additional annotations for the Ingress resource.
-  annotations: {}
+  annotations: {
+    kubernetes.io/ingress.class: nginx ,
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '300',
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '300' }
     # kubernetes.io/ingress.class: traefik
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
 
   # The list of hostnames to be covered with this ingress record.
   hosts:
-    - host: ollama.local
+    - host: llm2.stratocloud.eu
       paths:
         - path: /
           pathType: Prefix
@@ -346,7 +349,8 @@ persistentVolume:
   volumeName: ""
 
 # -- Node labels for pod assignment.
-nodeSelector: {}
+nodeSelector:
+  nvidia.com/gpu.count: '1'
 
 # -- Tolerations for pod assignment
 tolerations: []
